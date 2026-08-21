@@ -1,0 +1,32 @@
+name: Package issue
+description: Report a reproducible install, upgrade, or package-metadata problem.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Do not install an archive whose digest does not match. Report suspected security issues privately.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - santi020k-terminal
+        - coolstead
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Include the command, output, and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: macOS version, Mac architecture, Homebrew version, and package version.
+    validations:
+      required: true
