@@ -2,8 +2,8 @@
 # frozen_string_literal: true
 
 cask "coolstead" do
-  version "1.0.2"
-  sha256 "4fc7de1381033c122dd435ec95e0f61ba1753282625054f9afb7db22bfc9bcf4"
+  version "1.1.0"
+  sha256 "93466a98a581d154181d83f2a6bd2080112f0bb2eac5cc1f3486f32c863912f6"
 
   url "https://github.com/santi020k/coolstead-releases/releases/download/v#{version}/Coolstead-#{version}.dmg"
   name "Coolstead"
