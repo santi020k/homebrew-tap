@@ -5,8 +5,8 @@
 class Santi020kTerminal < Formula
   desc "Terminal colors, Starship prompt, and curated shell setup"
   homepage "https://terminal.santi020k.com"
-  url "https://github.com/santi020k/santi020k-theme/releases/download/santi020k-terminal-v1.0.3/santi020k-terminal-1.0.3.tar.gz"
-  sha256 "f2a407cf856bda5368c605c5ceab93f218336f087735412e6e74da2229df978c"
+  url "https://github.com/santi020k/santi020k-theme/releases/download/santi020k-terminal-v1.0.4/santi020k-terminal-1.0.4.tar.gz"
+  sha256 "3765992abe18202c8938100da8b84d580867b73ebbf3bd00afab0eb66954020d"
   license "MIT"
 
   depends_on "bat"
