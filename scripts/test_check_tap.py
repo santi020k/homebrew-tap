@@ -15,13 +15,21 @@ class TapChecks(unittest.TestCase):
             validate_identity(path.read_text())
 
     def test_untrusted_identity(self):
-        text = (ROOT / "Casks/coolstead.rb").read_text()
+        text = '\n'.join((
+            'version "1.2.0"',
+            'sha256 "' + "7" + "0" * 63 + '"',
+            'url "https://github.com/santi020k/coolstead-releases/releases/download/v#{version}/Coolstead-#{version}.dmg"',
+        ))
+        validate_identity(text)
         for bad in (text.replace('sha256 "7', 'sha256 "x'),
                     text.replace("https://github.com", "http://github.com"),
                     text.replace("santi020k/", "untrusted/"),
                     text.replace("v#{version}", "latest"),
                     text.replace('version "1.2.0"', 'version "latest"'),
-                    text.replace('Coolstead-#{version}.dmg', 'Coolstead-1.0.0.dmg')):
+                    text.replace('Coolstead-#{version}.dmg', 'Coolstead-1.0.0.dmg'),
+                    text.replace('Coolstead-#{version}.dmg', 'Coolstead-11.2.0.dmg'),
+                    text.replace('Coolstead-#{version}.dmg', 'Coolstead-1.2.00.dmg'),
+                    text.replace('Coolstead-#{version}.dmg', 'Coolstead-1.2.0.1.dmg')):
             with self.subTest(source=bad[:30]), self.assertRaises(ValueError):
                 validate_identity(bad)
 

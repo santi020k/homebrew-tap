@@ -57,7 +57,8 @@ def validate_identity(text):
             or "#{" in url):
         raise ValueError("Expected an immutable versioned santi020k GitHub release asset URL")
     version = re.search(r"([0-9]+\.[0-9]+\.[0-9]+)/", parsed.path).group(1)
-    if version not in parsed.path.rsplit("/", 1)[1]:
+    filename = parsed.path.rsplit("/", 1)[1]
+    if not re.search(r"(?<![0-9.])" + re.escape(version) + r"(?![0-9]|\.[0-9])", filename):
         raise ValueError("Asset filename must identify the same release version")
 
 
