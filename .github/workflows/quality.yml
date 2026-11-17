@@ -1,0 +1,71 @@
+name: Tap quality
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tap-quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  packaging:
+    name: Packaging validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test selection and identity failures
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+      - name: Validate affected packaging sources
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          args=()
+          if [[ "$GITHUB_EVENT_NAME" == pull_request && -n "$BASE" && "$BRANCH" != release/* ]]; then
+            args=(--base "$BASE" --head HEAD)
+          fi
+          python3 scripts/check_tap.py "${args[@]}"
+  impact:
+    name: Quality v2 shadow plan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install pinned Quality
+        run: |
+          curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/santi020k/quality/ff490e9efbd5fdfbdb1e6c404f1741d04c57f585/install.sh -o "$RUNNER_TEMP/install-quality.sh"
+          QUALITY_INSTALL_DIR="$RUNNER_TEMP/quality-bin" sh "$RUNNER_TEMP/install-quality.sh" santi020k/quality v2.0.0
+          echo "$RUNNER_TEMP/quality-bin" >> "$GITHUB_PATH"
+      - name: Verify committed policy fixtures
+        run: python3 scripts/quality_impact_test.py
+      - name: Record conservative committed-source plan
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          args=(--full)
+          if [[ "$GITHUB_EVENT_NAME" == pull_request && -n "$BASE" && "$BRANCH" != release/* ]]; then
+            args=(--base "$BASE" --head HEAD --comparison merge-base)
+          fi
+          quality impact plan "${args[@]}" --format json >> "$GITHUB_STEP_SUMMARY"
+  gate:
+    name: Required checks
+    if: always()
+    needs: [packaging, impact]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both checks
+        env:
+          PACKAGING: ${{ needs.packaging.result }}
+          IMPACT: ${{ needs.impact.result }}
+        run: |
+          for result in "$PACKAGING" "$IMPACT"; do
+            [[ "$result" == success ]] || exit 1
+          done
