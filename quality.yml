@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://quality.santi020k.com/quality.schema.json
+version: 1
+output: pretty
+tasks:
+  tap:
+    name: Validate packaging syntax and upstream identity
+    command: python3
+    args: [scripts/check_tap.py]
+    required: true
+    extensions: [rb, py]
+    parser: generic
+  fixtures:
+    name: Validate conservative selection and identity failures
+    command: python3
+    args: [-m, unittest, discover, -s, scripts, -p, "test_*.py"]
+    required: true
+    extensions: [rb, py]
+    parser: generic
+hooks:
+  commit-msg:
+    steps:
+      - name: Validate commit message
+        command: commitprompt
+        args: [validate, --input]
+        pass_hook_args: true
+  pre-push:
+    steps:
+      - name: Run repository quality checks
+        command: quality
+        args: [check]

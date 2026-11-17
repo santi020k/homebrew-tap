@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "global_inputs": [".github/", "scripts/", "quality.yml", "quality-impact.json", ".quality-version"],
+  "ignored_inputs": [],
+  "nodes": {
+    "formulae": {"inputs": ["Formula/"], "command": "python3", "args": ["scripts/check_tap.py", "--kind", "Formula"]},
+    "casks": {"inputs": ["Casks/"], "command": "python3", "args": ["scripts/check_tap.py", "--kind", "Casks"]}
+  }
+}
